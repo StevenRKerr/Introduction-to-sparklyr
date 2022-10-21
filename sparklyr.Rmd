@@ -1,0 +1,128 @@
+---
+title: "Introduction to sparklyr"
+output: html_document
+---
+
+We will largely follow Chapters 2 and 3 of Mastering Spark with R, [https://therinspark.com/](https://therinspark.com/).
+
+## Installation
+
+If you are using your own computer rather than Noteable, you may need to install Java 8 before you install Spark. Do it here:
+[https://www.java.com/en/download/](https://www.java.com/en/download/).
+
+I have commented out the line with spark_install('3.3'). This command installs Spark, and it only needs to be run once.
+
+```{r echo = TRUE, warning=FALSE, message=FALSE}
+library(sparklyr)
+library(dplyr)
+library(ggplot2)
+
+# Install Spark
+# This only needs to be run once
+# spark_install('3.3')
+```
+
+## Connecting
+
+You will be using the machine you are working on as a local cluster. This is just so you can familiarise yourself with using sparklyr. In practice, we would connect to an external cluster.
+
+mtcars is a dataset that is built into R that we will use as an example.
+
+```{r}
+sc = spark_connect(master = "local")
+cars = copy_to(sc, mtcars, overwrite =)
+```
+
+## Data input/output
+
+### Write to a csv file:
+
+This will create a folder in your working directory called cars.csv. It contains a csv with the cars data in it.
+
+```{r}
+spark_write_csv(cars, 'cars.csv')
+```
+
+Note that running this more than once will result in an error because spark_write_csv will not overwrite a folder you have already created. You may need to delete the folder cars.csv in your working directory in order to re-run.
+
+### Read from a csv file:
+
+```{r}
+spark_read_csv(sc, 'cars.csv')
+```
+
+## Data wrangling
+
+Familiar commands from dplyr work as you would expect, but now they instead connect to Spark and are run in parallel across the cluster.
+
+### Create a new column.
+
+```{r}
+cars = mutate(cars, transmission = ifelse(am == 0, "automatic", "manual"))
+```
+
+### Select columns.
+
+```{r}
+select(cars, am, transmission) 
+```
+
+### Calculate the mean of each column.
+
+```{r}
+summarise_all(cars, mean, na.rm = TRUE)
+```
+
+
+## Plots
+Creating a plot isn’t usually highly computationally demanding. Therefore, sparklyr does not have a full-fledged equivalent of ggplot. It is typically best to perform all data manipulations in Spark, then bring the result back to R using the collect() command. Finally, we use the regular ggplot package to make the graph.
+
+
+```{r}
+car_group = cars %>%
+	group_by(cyl) %>%
+	summarise(mpg = sum(mpg, na.rm = TRUE)) %>%
+	collect()
+
+ggplot(aes(as.factor(cyl), mpg), data = car_group) + 
+  geom_col(fill = "#999999") + 
+  coord_flip()
+```
+
+
+## Models, in brief
+
+We will go into more details about what these models are in coming lectures.
+
+### OLS
+
+```{r}
+ols_model = ml_linear_regression(cars, mpg ~ hp + disp)
+summary(ols_model)
+```
+
+### Logistic regression
+
+```{r}
+lr_model = ml_logistic_regression(cars, am ~ hp + disp)
+summary(lr_model)
+```
+
+### Multilayer perceptron
+
+```{r}
+mlp_model = ml_multilayer_perceptron_classifier(
+	cars,
+	am ~ hp + disp, 
+	layers = c(2, 8, 8, 2))
+predictions = ml_predict(mlp_model, cars)
+
+select(predictions, prediction, probability_0, probability_1)
+```
+
+## Disconnecting
+
+```{r}
+spark_disconnect(sc)
+```
+
