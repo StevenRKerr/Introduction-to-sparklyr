@@ -10,16 +10,23 @@ We will largely follow Chapters 2 and 3 of Mastering Spark with R, [https://ther
 If you are using your own computer rather than Noteable, you may need to install Java 8 before you install Spark. Do it here:
 [https://www.java.com/en/download/](https://www.java.com/en/download/).
 
-I have commented out the line with spark_install('3.3'). This command installs Spark, and it only needs to be run once.
+The first time you run this code, you should install Spark by typing the following command into the console:
+
+```{r eval=FALSE}
+spark_install('3.3')
+```
+This only needs to be done once on the first run.
+
+Next, we will install sparklyr and load up required packages.
 
 ```{r echo = TRUE, warning=FALSE, message=FALSE}
+if (!require('sparklyr')){
+  install.packages('sparklyr')
+}
+
 library(sparklyr)
 library(dplyr)
 library(ggplot2)
-
-# Install Spark
-# This only needs to be run once
-# spark_install('3.3')
 ```
 
 ## Connecting
@@ -92,7 +99,7 @@ ggplot(aes(as.factor(cyl), mpg), data = car_group) +
 
 ## Models, in brief
 
-We will go into more details about what these models are in coming lectures.
+We will go into more details about these models in coming lectures.
 
 ### OLS
 
@@ -119,6 +126,10 @@ predictions = ml_predict(mlp_model, cars)
 
 select(predictions, prediction, probability_0, probability_1)
 ```
+
+### Other models
+
+Apache Spark supports many other models - I have just chosen a few to look at more closely. I encourage you to explore others! See documentation here: [https://spark.apache.org/docs/latest/ml-classification-regression.html](https://spark.apache.org/docs/latest/ml-classification-regression.html)
 
 ## Disconnecting
 
