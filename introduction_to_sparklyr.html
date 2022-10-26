@@ -385,7 +385,7 @@ practice, we would connect to an external cluster.</p>
 <p>mtcars is a dataset that is built into R that we will use as an
 example.</p>
 <pre class="r"><code>sc = spark_connect(master = &quot;local&quot;)
-cars = copy_to(sc, mtcars, overwrite =)</code></pre>
+cars = copy_to(sc, mtcars, overwrite = TRUE)</code></pre>
 </div>
 <div id="data-inputoutput" class="section level2">
 <h2>Data input/output</h2>
@@ -402,7 +402,7 @@ order to re-run.</p>
 <div id="read-from-a-csv-file" class="section level3">
 <h3>Read from a csv file:</h3>
 <pre class="r"><code>spark_read_csv(sc, &#39;cars.csv&#39;)</code></pre>
-<pre><code>## # Source: spark&lt;cars_19a4f237_cf9c_4b78_ab27_cb35c7f83d63&gt; [?? x 11]
+<pre><code>## # Source: spark&lt;cars_2897114c_0a16_4eb8_a5d6_fd2a83c07e1a&gt; [?? x 11]
 ##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 ##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ##  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4

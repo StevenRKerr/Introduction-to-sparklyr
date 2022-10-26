@@ -10,14 +10,7 @@ We will largely follow Chapters 2 and 3 of Mastering Spark with R, [https://ther
 If you are using your own computer rather than Noteable, you may need to install Java 8 before you install Spark. Do it here:
 [https://www.java.com/en/download/](https://www.java.com/en/download/).
 
-The first time you run this code, you should install Spark by typing the following command into the console:
-
-```{r eval=FALSE}
-spark_install('3.3')
-```
-This only needs to be done once on the first run.
-
-Next, we will install sparklyr and load up required packages.
+First we will install sparklyr and load up required packages.
 
 ```{r echo = TRUE, warning=FALSE, message=FALSE}
 if (!require('sparklyr')){
@@ -29,6 +22,14 @@ library(dplyr)
 library(ggplot2)
 ```
 
+Next we'll install spark by typing the following command into the console:
+
+```{r eval=FALSE}
+spark_install()
+```
+
+This only needs to be done once on the first run. If you are using Noteable, you will notice a new folder called spark has been created in your working directory.
+
 ## Connecting
 
 You will be using the machine you are working on as a local cluster. This is just so you can familiarise yourself with using sparklyr. In practice, we would connect to an external cluster.
@@ -37,7 +38,7 @@ mtcars is a dataset that is built into R that we will use as an example.
 
 ```{r}
 sc = spark_connect(master = "local")
-cars = copy_to(sc, mtcars, overwrite =)
+cars = copy_to(sc, mtcars, overwrite = TRUE)
 ```
 
 ## Data input/output
@@ -126,6 +127,31 @@ predictions = ml_predict(mlp_model, cars)
 
 select(predictions, prediction, probability_0, probability_1)
 ```
+
+### Gradient boosted trees
+
+Classification trees:
+
+```{r}
+gbt_model = ml_gradient_boosted_trees(cars, am ~ hp + disp, type = 'classification')
+
+predictions = ml_predict(gbt_model, cars)
+
+select(predictions, prediction, probability_0, probability_1)
+```
+
+Regression trees:
+
+```{r}
+gbt_model = ml_gradient_boosted_trees(cars, mpg ~ hp + disp, type = 'regression')
+
+predictions = ml_predict(gbt_model, cars)
+
+predictions
+```
+
+
+
 
 ### Other models
 
