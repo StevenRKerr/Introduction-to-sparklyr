@@ -11,7 +11,7 @@
 
 
 
-<title>Introduction to sparklyr</title>
+<title>Installing sparklyr and Spark</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -354,472 +354,48 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Introduction to sparklyr</h1>
+<h1 class="title toc-ignore">Installing sparklyr and Spark</h1>
 
 </div>
 
 
-<p>We will largely follow Chapters 2 and 3 of Mastering Spark with R, <a href="https://therinspark.com/">https://therinspark.com/</a>.</p>
-<p>First, load up required packages.</p>
-<pre class="r"><code>library(sparklyr)
-library(dplyr)
-library(ggplot2)
-library(knitr)</code></pre>
-<div id="connecting" class="section level2">
-<h2>Connecting</h2>
-<p>Spark is used to run data-processing algorithms across a cluster.
-Normally, you would connect to an external cluster. However, you will
-connect to your local machine as if it were a cluster. This will allow
-you to familiarise yourself with spark and sparklyr.</p>
-<p>The code chunk below creates a spark connection to your machine as if
-it were a cluster, and then loads the mtcars dataset into a Spark
-dataframe. mtcars is a dataset that is built into R that we will use as
-an example.</p>
-<pre class="r"><code>sc = spark_connect(master = &#39;local&#39;)
-cars = copy_to(sc, mtcars, overwrite = TRUE)</code></pre>
+<p>First we will install sparklyr. This only needs to be done once.</p>
+<pre class="r"><code>install.packages(&quot;sparklyr&quot;)</code></pre>
+<p>Next, load it up.</p>
+<pre class="r"><code>library(sparklyr)</code></pre>
+<p>What you need to do next depends on whether you are using your own
+machine or Noteable. Please follow the directions in the appropriate
+section below.</p>
+<div id="using-noteable" class="section level3">
+<h3>Using Noteable</h3>
+<p>Run the following command in the Rstudio console to install Spark
+3.2.2:</p>
+<pre class="r"><code>spark_install(&quot;3.2.2&quot;,&quot;3.2&quot;)</code></pre>
+<p>Installing spark only needs to be done once. You will notice a new
+folder called spark has been created in your working directory.</p>
 </div>
-<div id="data-inputoutput" class="section level2">
-<h2>Data input/output</h2>
-<div id="write-to-a-csv-file" class="section level3">
-<h3>Write to a csv file</h3>
-<p>This will create a folder in your working directory called cars.csv.
-It contains a csv with the cars data in it.</p>
-<pre class="r"><code>spark_write_csv(cars, &#39;cars.csv&#39;)</code></pre>
-<p>Note that running this more than once will result in an error because
-spark_write_csv will not overwrite a folder you have already created.
-You may need to delete the folder cars.csv in your working directory in
-order to re-run.</p>
-</div>
-<div id="read-from-a-csv-file" class="section level3">
-<h3>Read from a csv file</h3>
-<pre class="r"><code>spark_read_csv(sc, &#39;cars.csv&#39;) %&gt;%
-  head() %&gt;%
-  kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="right">mpg</th>
-<th align="right">cyl</th>
-<th align="right">disp</th>
-<th align="right">hp</th>
-<th align="right">drat</th>
-<th align="right">wt</th>
-<th align="right">qsec</th>
-<th align="right">vs</th>
-<th align="right">am</th>
-<th align="right">gear</th>
-<th align="right">carb</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">21.0</td>
-<td align="right">6</td>
-<td align="right">160</td>
-<td align="right">110</td>
-<td align="right">3.90</td>
-<td align="right">2.620</td>
-<td align="right">16.46</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">4</td>
-<td align="right">4</td>
-</tr>
-<tr class="even">
-<td align="right">21.0</td>
-<td align="right">6</td>
-<td align="right">160</td>
-<td align="right">110</td>
-<td align="right">3.90</td>
-<td align="right">2.875</td>
-<td align="right">17.02</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">4</td>
-<td align="right">4</td>
-</tr>
-<tr class="odd">
-<td align="right">22.8</td>
-<td align="right">4</td>
-<td align="right">108</td>
-<td align="right">93</td>
-<td align="right">3.85</td>
-<td align="right">2.320</td>
-<td align="right">18.61</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">4</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td align="right">21.4</td>
-<td align="right">6</td>
-<td align="right">258</td>
-<td align="right">110</td>
-<td align="right">3.08</td>
-<td align="right">3.215</td>
-<td align="right">19.44</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">3</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td align="right">18.7</td>
-<td align="right">8</td>
-<td align="right">360</td>
-<td align="right">175</td>
-<td align="right">3.15</td>
-<td align="right">3.440</td>
-<td align="right">17.02</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">3</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td align="right">18.1</td>
-<td align="right">6</td>
-<td align="right">225</td>
-<td align="right">105</td>
-<td align="right">2.76</td>
-<td align="right">3.460</td>
-<td align="right">20.22</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">3</td>
-<td align="right">1</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div id="data-wrangling" class="section level2">
-<h2>Data wrangling</h2>
-<p>Familiar commands from dplyr work as you would expect, but now they
-instead connect to Spark and would be run in parallel across the
-cluster.</p>
-<div id="create-a-new-column." class="section level3">
-<h3>Create a new column.</h3>
-<pre class="r"><code>cars = mutate(cars, transmission = ifelse(am == 0, &#39;automatic&#39;, &#39;manual&#39;))</code></pre>
-</div>
-<div id="select-columns." class="section level3">
-<h3>Select columns.</h3>
-<pre class="r"><code>select(cars, am, transmission) %&gt;%
-  head() %&gt;%
-  kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="right">am</th>
-<th align="left">transmission</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">1</td>
-<td align="left">manual</td>
-</tr>
-<tr class="even">
-<td align="right">1</td>
-<td align="left">manual</td>
-</tr>
-<tr class="odd">
-<td align="right">1</td>
-<td align="left">manual</td>
-</tr>
-<tr class="even">
-<td align="right">0</td>
-<td align="left">automatic</td>
-</tr>
-<tr class="odd">
-<td align="right">0</td>
-<td align="left">automatic</td>
-</tr>
-<tr class="even">
-<td align="right">0</td>
-<td align="left">automatic</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="calculate-the-mean-of-each-column." class="section level3">
-<h3>Calculate the mean of each column.</h3>
-<pre class="r"><code>summarise_all(cars, mean, na.rm = TRUE) %&gt;%
-  kable()</code></pre>
-<table>
-<colgroup>
-<col width="8%" />
-<col width="6%" />
-<col width="8%" />
-<col width="8%" />
-<col width="8%" />
-<col width="7%" />
-<col width="8%" />
-<col width="6%" />
-<col width="7%" />
-<col width="6%" />
-<col width="6%" />
-<col width="12%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="right">mpg</th>
-<th align="right">cyl</th>
-<th align="right">disp</th>
-<th align="right">hp</th>
-<th align="right">drat</th>
-<th align="right">wt</th>
-<th align="right">qsec</th>
-<th align="right">vs</th>
-<th align="right">am</th>
-<th align="right">gear</th>
-<th align="right">carb</th>
-<th align="right">transmission</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">20.09062</td>
-<td align="right">6.1875</td>
-<td align="right">230.7219</td>
-<td align="right">146.6875</td>
-<td align="right">3.596563</td>
-<td align="right">3.21725</td>
-<td align="right">17.84875</td>
-<td align="right">0.4375</td>
-<td align="right">0.40625</td>
-<td align="right">3.6875</td>
-<td align="right">2.8125</td>
-<td align="right">NA</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div id="plots" class="section level2">
-<h2>Plots</h2>
-<p>Creating a plot isn’t usually highly computationally demanding.
-Therefore, sparklyr does not have a full-fledged equivalent of ggplot.
-It is typically best to perform all data manipulations in Spark, then
-bring the result back to R using the collect() command. Finally, we use
-the regular ggplot package to make the graph.</p>
-<pre class="r"><code># Data manipulations are done first using spark
-car_group = cars %&gt;%
-  group_by(cyl) %&gt;%
-  summarise(mpg = sum(mpg, na.rm = TRUE)) %&gt;%
-  # collect brings the Spark dataframe back to a regular R dataframe
-  collect()
-
-# Now use ggplot on the R dataframe car_group
-ggplot(aes(as.factor(cyl), mpg), data = car_group) +
-  geom_col(fill = &#39;SteelBlue&#39;) +
-  xlab(&#39;Cylinders&#39;) +
-  coord_flip()</code></pre>
-<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAABUFBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZpAAZrYzMzM6AAA6OgA6Ojo6OmY6ZmY6ZpA6ZrY6kLY6kNtGgrRNTU1NTW5NTY5Nbm5Nbo5NbqtNjshmAABmADpmOgBmOjpmZjpmZmZmZpBmkGZmkJBmkLZmkNtmtttmtv9uTU1ubk1ubm5ubo5ujqtujshuq+SOTU2Obk2Obm6Oq6uOq8iOq+SOyOSOyP+QOgCQOjqQZjqQZmaQZpCQkDqQkGaQkLaQtraQttuQ2/+rbk2rbm6rjm6ryOSr5P+2ZgC2Zjq2kDq2kGa2tpC2tra2ttu229u22/+2///Ijk3Ijm7Iq27I5P/I///bkDrbkGbbtmbbtpDbtrbb27bb29vb2//b///kq27kyI7kyKvk5Mjk///r6+v/tmb/yI7/25D/27b/29v/5Kv/5Mj//7b//8j//9v//+T////77JvZAAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO3d7ZsdVnWf4WMwNSKA44wp2CGFhoLaAE7aBgp9A5dgoE5B1CiQNDipiwy2kfT/f+u8SVgStrR/Onv22ov7/oBlS+aarbX24zNzzhwd7gIQOaz+AAB2JaAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUJHDej/C+X/Zhnbn8AM1mswg/5DENAptj+BGazXYAb9hyCgU2x/AjNYr8EM+g9BQKfY/gRmsF6DGfQfgoBOsf0JzGC9BjPoPwQBnWL7E5jBeg1m0H8IAjrF9icwg/UazKD/EAR0iu1PYAbrNZhB/yEI6BTbn8AM1mswg/5DENAptj+BGazXYAb9hyCgU2x/AjNYr8EM+g9BQKfY/gRmsF6DGfQfgoBOsf0JzGC9BjPoPwQBnWL7E5jBeg1m0H8IAjrF9icwg/UazKD/EAR0iu1PYAbrNZhB/yEI6BTbn8AM1mswg/5DENAptj+BGazXYAb9hyCgU2x/AjNYr8EM+g9BQKfY/gRmsF6DGfQfgoBOsf0JzGC9BjPoPwQBnWL7E5jBeg1m0H8IAjrF9icwg/UazKD/EAR0iu1PYAbrNZhB/yEI6BTbn8AM1mswg/5DENAptj+BGazXYAb9hyCgU2x/AjNYr8EM+g9BQKfY/gRmsF6DGfQfgoBOsf0JzGC9BjPoPwQBnWL7E5jBeg1m0H8IAjrF9icwg/UazKD/EAR0iu1PYAbrNZhB/yEI6BTbn8AM1mswg/5DENAptj+BGazXYAb9hyCgU2x/AjNYr8EM+g9BQKfY/gRmsF6DGfQfgoBOsf0JzGC9BjPoPwQBnWL7E5jBeg1m0H8IAjrF9icwg/UazKD/EAR0iu1PYAbrNZhB/yGUDOifAGPS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCegTePevTk5OvvqGgMIy6W2bS0Af753rJ2de/L6AwirpbZtLQB/rzqsnn3vj7run//uWgMIi6W2bS0Af653rn/nZ6V9++8ojD0Hjj3n1LsJ20ts2l4A+1q2Tl87+cvpA9BsCCoukt20uAX0sj0BhvfS2zSWgj3X/a6Av3fsnH780/v91afUuwnbi28YRJc/C3/np+bPwX7v/HJKAwlWLbxtHFL2M6S/PA/rZR14IGj9qXr2LsJ30ts3lU/jH9/P62YPP04ehvgYKy6S3bS4BfawbJ1+//OtLD/1M/DGv3kXYTnrb5hLQx7nz6uUjz3euP/xK+vhjXr2LsJ30ts0loAIKG0hv21wC+lg+hYf10ts2l4A+1q0TTyLBaultm0tAH+/Nkwtff/gn4o959S7CdtLbNpeAPoH/e/Z+oH/h/UBhnfS2zSWgTyH+mFfvImwnvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJqIDCBtLbNpeACihsIL1tcwmogMIG0ts2l4AKKGwgvW1zCaiAwgbS2zaXgAoobCC9bXMJ6IqAbv+73n9vNrD9CRrMoP8QBHSK7U9gBus1mEH/IQjoFNufwAzWazCD/kMQ0Cm2P4EZrNdgBv2HIKBTbH8CM1ivwQz6D0FAp9j+BGawXoMZ9B+CgE6x/QnMYL0GM+g/BAGdYvsTmMF6DWbQfwgCOsX2JzCD9RrMoP8QBHSK7U9gBus1mEH/IQjoFNufwAzWazCD/kMQ0Cm2P4EZrNdgBv2HIKBTbH8CM1ivwQz6D0FAp9j+BGawXoMZ9B+CgE6x/QnMYL0GM+g/BAGdYvsTmMF6DWbQfwgCOsX2JzCD9RrMoP8QBHSK7U9gBus1mEH/IQjoFNufwAzWazCD/kMQ0Cm2P4EZrNdgBv2HIKBTbH8CM1ivwQz6D0FAp9j+BGawXoMZ9B+CgE6x/QnMYL0GM+g/BAGdYvsTmMF6DWbQfwgCOsX2JzCD9RrMoP8QBHSK7U9gBus1mEH/IQjoFNufwAzWazCD/kMoGdA/gd9jcI3S/atCQAsQUNoYXKN0/6oQ0AIElDYG1yjdvyoEtAABpY3BNUr3rwoBLUBAaWNwjdL9q0JACxBQ2hhco3T/qhDQAgSUNgbXKN2/KgS0AAGljcE1SvevCgEtQEBpY3CN0v2rQkALEFDaGFyjdP+qENACBJQ2Btco3b8qBLQAAaWNwTVK968KAS1AQGljcI3S/atCQAsQUNoYXKN0/6oQ0AIElDYG1yjdvyoEtAABpY3BNUr3rwoBLUBAaWNwjdL9q0JACxBQ2hhco3T/qhDQAgSUNgbXKN2/KgS0AAGljcE1SvevCgEtQEBpY3CN0v2rQkALEFDaGFyjdP+qENACBJQ2Btco3b8qBLQAAaWNwTVK968KAS1AQGljcI3S/atCQAsQUNoYXKN0/6oQ0AIElDYG1yjdvyoEtAABpY3BNUr3rwoBLUBAaWNwjdL9q0JACxBQ2hhco3T/qhDQAgSUNgbXKN2/KgS0AAGljcE1SvevCgEtQEBpY3CN0v2rQkALEFDaGFyjdP+qENACBJQ2Btco3b8qBLQAAaWNwTVK968KAS1AQGljcI3S/atCQAsQUNoYXKN0/6oQ0AIElDYG1yjdvyoEtAABpY3BNUr3rwoBLUBAaWNwjdL9q0JACxBQ2hhco3T/qhDQAgSUNgbXKN2/KgS0AAGljcE1SvevCgEtQEBpY3CN0v2rQkALEFDaGFyjdP+qENACBJQ2Btco3b8qBLQAAaWNwTVK968KAS1AQGljcI3S/atCQAsQUNoYXKN0/6oQ0AIElDYG1yjdvyoEtAABpY3BNUr3rwoBLUBAaWNwjdL9q0JACxBQ2hhco3T/qhDQAgSUNgbXKN2/KgS0AAGljcE1SvevCgEtQEBpY3CN0v2rQkALEFDaGFyjdP+qENACBJQ2Btco3b8qBLQAAaWNwTVK968KAS1AQGljcI3S/atCQAsQUNoYXKN0/6oQ0AKOG9Dbf//63wooiwyuUbp/VQhoAccK6K//8y/v3n3v84fD4dnvCihLDK5Run9VCGgBRwrozcNHfnL37muHM2c/ElCu3uAapftXhYAWcJyA/uo8m29fO3zsl79++fCCgLLC4Bql+1eFgBZwnIC+dlrOs4w+892z/z37sYBy5QbXKN2/KgS0gKME9PY3z8p5mdH3Xn7Sz+Hjj3n1RaWmwTVK968KAS3gKAG9aOZ7Lx+euyugLDO4Run+VSGgBRwxoG9fO3xFQFlncI3S/atCQAs44qfwN8+/BOproKwyuEbp/lUhoAUc60mk586efj8rp2fhWWVwjdL9q0JACzjay5jOfOXu7W8dLh6HCihXbnCN0v2rQkALONoL6U89d/5E0jNfecJ+CijHNbhG6f5VIaAFHO1bOb/9xe+c/uW9P/30j5+0nwLKcQ2uUbp/VQhoAd6NiTYG1yjdvyoEtIAjPYk08LhTQJlkcI3S/atCQAs40utAD0/8hU8BZZbBNUr3rwoBLeCIL6QXUNYaXKN0/6oQ0AKO+b3wAspSg2uU7l8VAlrAcb4GevPwseCLoPHHvPqiUtPgGqX7V4WAFnCcgP7mh4fDRz/1hUtf9K2crDC4Run+VSGgBRzrSaT382YiLDG4Run+VSGgBQgobQyuUbp/VQhoAV5ITxuDa5TuXxUCWoCA0sbgGqX7V4WAFnDMgN7+RwFlocE1SvevCgEt4GgB/cWfnX3x870//dITPgUvoBzb4Bql+1eFgBZwpIDe/sHFs0fvvXx49icCyhKDa5TuXxUCWsCRAvra4fDsv772kZ/c/k+HJ/4TPQSU4xpco3T/qhDQAo72jvRfvvyO+J9fe+I3Fok/5tUXlZoG1yjdvyoEtIBj/ZlIL9x/S5Gb53+4sYBy5QbXKN2/KgS0gCO+mchlQN++5oX0LDG4Run+VSGgBRzx7ewuA+rPhWeRwTVK968KAS1AQGljcI3S/atCQAs40qfwZ08cXZbzV0/8NHz8Ma++qNQ0uEbp/lUhoAUc6/1An7sX0NOYehKJJQbXKN2/KgS0gOME9O1rh+d/eR7QX3/+8MTvTh9/zKsvKjUNrlG6f1UIaAFHeiH9zcPh8EfXnvnUJ07/+sIT9lNAOa7BNUr3rwoBLeBY3wv/d9fuvRvoE/dTQDmuwTVK968KAS3gaG8m8psf/dFpPT868gfExx/z6otKTYNrlO5fFQJagPcDpY3BNUr3rwoBLUBAaWNwjdL9q0JAC3jagP7m/zzqSd9XOf6YV19Uahpco3T/qhDQAp4yoA/9cXL+UDkWGlyjdP+qENACBJQ2Btco3b8qBLSApwzo7b9//dwPD4dnvvjfX3/9v37i8MyX/ta3crLC4Bql+1eFgBZwnCeRTh+I3nv558+f+AGogHJcg2uU7l8VAlrAEd9Q+ZI3VGaRwTVK968KAS3giG+ofOnta96NiSUG1yjdvyoEtIAjvh/o7/sbAeXqDK5Run9VCGgBRwroA49ABZQlBtco3b8qBLSAY30N9Lnf+2MB5QoNrlG6f1UIaAFH+2ONn7/4wuftHxz8scasMbhG6f5VIaAFHOl74V87HA6f/MIXvnD2fqDPP/yTd356/eTkX/61gDLX4Bql+1eFgBZwpICePfD8oPcDffeVk3NfE1CmGlyjdP+qENACjvh+oGePPj/6pUfeSeTOqyeffePunf998uL3BZSZBtco3b8qBLSA+W9nd+vkMz87++ubJy8JKDMNrlG6f1UIaAHTA3r6APQbH/BT8ce8+qJS0+AapftXhYAWcMSA/v73A/3tKxcPQAWU2QbXKN2/KgS0gCMF9Nff+qC3s3vn+ufe+qd/e3Ly2b+5/48+fulDYvzhVl9UaooXCq7GB78b04cE9HsXz8J//d4/ElCmiBcKrsYHBPTm4fDsn79+zwPvB3rr7AVMb92981PPwjPZ4Bql+1eFT+ELONK7MX3wt2/euvfQ84Zn4ZlrcI3S/atCQAs4/puJPOSd65ePPM++GCqgTDS4Run+VSGgBRz/7eweCejls/D3fyCgzDG4Run+VSGgBRz/DZUfcufVy0egt048AmWqwTVK968KAS3gOC9juvnod8Dfd+9rnzd+9zS8gDLD4Bql+1eFgBZwnICePgT98gcF9J3rJ199w7PwzDe4Run+VSGgBRznU/hv/6vD4ZlPfeHSFx/8M5FuXT9/GeiLj3xHZ/wxr76o1DS4Run+VSGgBRzpSaTDB76Q/tS73ztN6F+88ci/Fn/Mqy8qNQ2uUbp/VQhoAVcR0A8Sf8yrLyo1Da5Run9VCGgB89/OTkC5IoNrlO5fFQJagIDSxuAapftXhYAWIKC0MbhG6f5VIaAFPGVAb3/77Dn30/99v4eehRdQrsbgGqX7V4WAFvCUAX3v5bOnjDyJRAWDa5TuXxUCWoCA0sbgGqX7V4WAFuBroLQxuEbp/lUhoAUIKG0MrlG6f1UIaAECShuDa5TuXxUCWsDTPwv/KM/Cs8TgGqX7V4WAFvD0TyI9ypNILDG4Run+VSGgBQgobQyuUbp/VQhoAb4GShuDa5TuXxUCWoCA0sbgGqX7V4WAFiCgtDG4Run+VSGgBRzn/UD/9Pl/FFBWG1yjdP+qENACjvaGyh/90hO+eElAmWRwjdL9q0JACzjOn4n0g/Nn35/9zlhD44959UWlpsE1SvevCgEt4FhfA/2HPztv6Ce/I6CsMrhG6f5VIaAFHPFJpF9cNPTTPxZQlhhco3T/qhDQAo76LPztX3z+LKHPfOnJnlKKP+bVF5WaBtco3b8qBLSAY7+M6Tffunb+qfyTPAyNP+bVF5WaBtco3b8qBLSA4z4C/dEn7n8/5/MCyhUbXKN0/6oQ0AKOF9B79Tx7Lv43PzgcXhBQrtbgGqX7V4WAFnCkgF5+9fN3rwb91eFjj31NU/wxr76o1DS4Run+VSGgBRzndaDfPDz85NF7Lz/+PZnij3n1RaWmwTVK968KAS3gaN+J9MyDL19672WPQLlig2uU7l8VAlrAkQL66f/10D+6/bePfylT/DGvvqjUNLhG6f5VIaAFeDcm2hhco3T/qhDQAgSUNgbXKN2/KgS0gKME9DeXn66//cmhtxOJP+bVF5WaBtco3b8qBLSAIwT015+/95rPm4fDM18WUBYZXKN0/6oQ0AKePqA/v3Y4PHfxwx+evZjp8S+gF1CmGFyjdP+qENACnjqgvzr75qN7z8GfvzHoVwSUJQbXKN2/KgS0gKcN6NlLQN//mPPmk/+pxgLKcQ2uUbp/VQhoAU8b0NNgPvCK+bNvSnrST+Ljj3n1RaWmwTVK968KAS3gKQN61ssHP2X/1eEJvgteQJlgcI3S/atCQAt4yoCefgb/zHcf+CdvX3viz+Hjj3n1RaWmwTVK968KAS3g6QP6UC4f/ScCytUYXKN0/6oQ0AIElDYG1yjdvyoEtICn/xroo5/C+xooSwyuUbp/VQhoAU/7LPxrDz/pfvP+y+oFlKs1uEbp/lUhoAU8bUAfftLdy5hYZnCN0v2rQkALOPYL6V/zQnpWGVyjdP+qENACjvKtnM/fewz662+NfDN8/DGvvqjUNLhG6f5VIaAFPP2bidw8/6M4/9vrr7/+o/M/WO5JvwIqoBzZ4Bql+1eFgBZwhLez+7trh9955t88cT8FlOMaXKN0/6oQ0AKO8YbK55+4X+Tz+cf/SUgCyiSDa5TuXxUCWsCR/kiPf/if3/7Cn78+Uk8B5dgG1yjdvyoEtAB/JhJtDK5Run9VCGgBAkobg2uU7l8VAlqAgNLG4Bql+1eFgBYgoLQxuEbp/lUhoAUIKG0MrlG6f1UIaAECShuDa5TuXxUCWoCA0sbgGqX7V4WAFiCgtDG4Run+VSGgBQgobQyuUbp/VQhoAQJKG4NrlO5fFQJagIDSxuAapftXhYAWIKC0MbhG6f5VIaAFCChtDK5Run9VCGgBAkobg2uU7l8VAlqAgNLG4Bql+1eFgBYgoLQxuEbp/lUhoAUIKG0MrlG6f1UIaAECShuDa5TuXxUCWoCA0sbgGqX7V4WAFiCgtDG4Run+VSGgBQgobQyuUbp/VQhoAQJKG4NrlO5fFQJagIDSxuAapftXhYAWIKC0MbhG6f5VIaAFCChtDK5Run9VCGgBAkobg2uU7l8VAlqAgNLG4Bql+1eFgBYgoLQxuEbp/lUhoAUIKG0MrlG6f1UIaAECShuDa5TuXxUCWoCA0sbgGqX7V4WAFiCgtDG4Run+VSGgBQgobQyuUbp/VQhoAQJKG4NrlO5fFQJagIDSxuAapftXhYAWIKC0MbhG6f5VIaAFCChtDK5Run9VCGgBAkobg2uU7l8VAlqAgNLG4Bql+1eFgBYgoLQxuEbp/lUhoAUIKG0MrlG6f1UIaAECShuDa5TuXxUCWoCA0sbgGqX7V4WAFiCgtDG4Run+VSGgBQgobQyuUbp/VQhoAQJKG4NrlO5fFQJagIDSxuAapftXhYAWIKC0MbhG6f5VIaAFCChtDK5Run9VCGgBAkobg2uU7l8VAlqAgNLG4Bql+1eFgBYgoLQxuEbp/lUhoAUIKG0MrlG6f1UIaAECShuDa5TuXxUCWoCA0sbgGqX7V4WAFiCgtDG4Run+VSGgBQgobQyuUbp/VQhoAQJKG4NrlO5fFQJagIDSxuAapftXhYAWIKC0MbhG6f5VIaAFCChtDK5Run9VCGgBWwZ0+9/1/nuzge1P0GAG/YcgoFNsfwIzWK/BDPoPQUCn2P4EZrBegxn0H4KATrH9CcxgvQYz6D8EAZ1i+xOYwXoNZtB/CAI6xfYnMIP1Gsyg/xAEdIrtT2AG6zWYQf8hCOgU25/ADNZrMIP+QxDQKbY/gRms12AG/YcgoFNsfwIzWK/BDPoPQUCn2P4EZrBegxn0H4KATrH9CcxgvQYz6D8EAZ1i+xOYwXoNZtB/CAI6xfYnMIP1Gsyg/xAEdIrtT2AG6zWYQf8hCOgU25/ADNZrMIP+QxDQKbY/gRms12AG/YcgoFNsfwIzWK/BDPoPQUCn2P4EZrBegxn0H4KATrH9CcxgvQYz6D8EAZ1i+xOYwXoNZtB/CAI6xfYnMIP1Gsyg/xAEdIrtT2AG6zWYQf8hCOgU25/ADNZrMIP+QxDQKbY/gRms12AG/YcgoFNsfwIzWK/BDPoPoWRA/wTg6ggoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgBdjBekAAAnQSURBVAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQGh5QN+5/rm3BBTY0eqA3nn1RECBPa0O6JsnAgpsanFA37kuoMCu1gb09BP4f+9roMCm1gb0xslLnkQCdrU0oLdOP31/f0A/fin5/zq3+ncT+IMSt+ohSUB/+8qL378roMCu4lY9JAnojZOvex0osK+Fn8K/ef78u4ACu1oX0Heun34CL6DAvtYF9M2T+z7zMwEF9iOgAKF1Ab3kU3hgVwIKEBJQgJCAAoSWB/T3EVBgBwIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUI9Qpo/G+Wsf0JzGC9BjPoPwQBnWL7E5jBeg1m0H8IAjrF9icwg/UazKD/EAR0iu1PYAbrNZhB/yEI6BTbn8AM1mswg/5DENAptj+BGazXYAb9hyCgU2x/AjNYr8EM+g9BQKfY/gRmsF6DGfQfgoBOsf0JzGC9BjPoPwQBnWL7E5jBeg1m0H8IAjrF9icwg/UazKD/EAR0iu1PYAbrNZhB/yEI6BTbn8AM1mswg/5DENAptj+BGazXYAb9hyCgU2x/AjNYr8EM+g9BQKfY/gRmsF6DGfQfgoBOsf0JzGC9BjPoPwQBnWL7E5jBeg1m0H8IAjrF9icwg/UazKD/EAR0iu1PYAbrNZhB/yEI6BTbn8AM1mswg/5DENAptj+BGazXYAb9hyCgU2x/AjNYr8EM+g9BQKfY/gRmsF6DGfQfgoBOsf0JzGC9BjPoPwQBnWL7E5jBeg1m0H8IAjrF9icwg/UazKD/EAR0iu1PYAbrNZhB/yEI6BTbn8AM1mswg/5DENAptj+BGazXYAb9hyCgU2x/AjNYr8EM+g9BQKfY/gRmsF6DGfQfgoBOsf0JzGC9BjPoPwQBnWL7E5jBeg1m0H8IAjrF9icwg/UazKD/EAR0iu1PYAbrNZhB/yEI6BTbn8AM1mswg/5DENAptj+BGazXYAb9hyCgU2x/AjNYr8EM+g9BQKfY/gRmsF6DGfQfwsyApj7+8dUfAWawnhkUMDgEAeWcGaxnBgUIKAkzWM8MChBQEmawnhkUIKAkzGA9MyhAQEmYwXpmUICAkjCD9cygAAElYQbrmUEBOwYUYEcCChASUICQgAKEBBQgJKAAIQEFCAkoQGh9QO987/rJyVffWP1h/AH67SsvXf7ogRkYyFX55786OXnx9/62m8GV+ee/PB3Cf3jr4m/Gh7A8oL995eTMZ362+gP5w3Pj5DKgD8zAQK7KT89/o09e/P7Z35jBGm9eDOGzj/6+P9kQlgf0xsnn3rj77qsnn3tr9UfyB+bOjZN7AX1gBgZyRW6dvPjXd89+p8+vqBks8c718yH85cVVCIawOqDvXD9fn9++cvHfYa7K2WculwF9YAYGckXuvHryjbO/nj7Q+YYZrHLj5Otnf7n4HU+GsDqgb15e4jcvDsIVOf3M5Wv/dP/3/n0zMJAr8ttXLj85vPHIb7sZXLWLYSRDWB3QGxf/GT79fOalx/xKjunNz/7N/d/zB2ZgIFftPKBmsNQ7188+UU+GsDigd169fIB8cQKu0uVqPDADA7lq558jmsFS/3T9rJbREAT0D5eAVnD+qaIZLHTj5OTFv7m7fUC9ZuOqPRrQz/zMQK7YrfOXMZnBOnf+x7+7fvLifwyHUCeg/mN71TwCXe/W9RfPvtRmBmv989nn8Js/ArUrV01Al3vz8mX0ZrDYrZOHft83CagnHBfyLPxqPz259yJDM1jrPJMbPgt//1VWXvJ29W499Eq3y5e/GcgVuXPj8jsI75rBIve+m+EioMkQVgfUN12sc8t3Ii11433fJWgGa9y4/1nYS3t+J9LpfwI+69t+17gX0AdmYCBX5c33/xabwRrvXD/52lt37/z08rUQ40NYHdC773rjmVXuf3XngRkYyNW4fLOfk8u3JDCDNW5dviXW+WfywRCWB/Tuu987/Si/6j+1V+93Xx5/YAYGciVunTwQUDNY5N33vynr+BDWBxRgUwIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAAoQEFCAkoAAhAQUICShASEABQgIKEBJQgJCAUtztbx6eu/uLzx8Ozzz/y7t3f/Fnh8Ph0z8++4n3Xj68cPtH1w6HZ79z79ee/ezpL7t5+MhPln28/CERUIo7Dei/eO1w7iM/+cHFD5757t3zgP7xNy/+/mO/vPyVF7/sWwLK1RBQijvP4umDz9un8fzo4dP/ePf2Dy+KeRrQw/nfn/7Ec2e/8rX7v05AuRoCSnFnAX3h7AdnwTwP5WkpzwL5/r8/e0j69rWLX3f3poByRQSU4k4DepnDi07ePSvk2Q9OA3r5E6c/eu7sn/7ubwWUKyGgFHca0IsvcV4+8Dz1q3sBfe7y17x2+kvOn2y6++AvhLkElOJ+F8ZHA/rC3d/9zPv+1rPwXBEBpbgPC+hXLn/NTQFlCQGluIFHoPc+hRdQroiAUtyTBdTXQFlBQCnuwwJ6+ezSRUo9C8+VE1CK+7CAXj4E9TpQFhFQivvQgB7++Jd3f/2ty5De9J1IXDEBpbgPC+inrl189/vFI8/bl98y/+x/EVCuhoBS3Ic+iXT26PPyzZnOeDcmrpaAsqv3PQv/kNfuPbsEcwkou3o4oPcfoL7vBU0wlYCyq4cDevNw+Z1J95+Oh8kElF09HNDTbj7z5dPHnz+/5kugXBEBZVePfA30V5fPyR+e/fEH/CtwXALKrh59Euk3P/jEaT4/+R3PIHFFBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChD6/3qAvQH70OjoAAAAAElFTkSuQmCC" width="672" /></p>
-</div>
-<div id="models-in-brief" class="section level2">
-<h2>Models, in brief</h2>
-<p>We will go into more details about these models in coming
-lectures.</p>
-<div id="ols" class="section level3">
-<h3>OLS</h3>
-<pre class="r"><code>ols_model = ml_linear_regression(cars, mpg ~ hp + disp)
-summary(ols_model)</code></pre>
-<pre><code>## Deviance Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -4.7945 -2.3036 -0.8246  1.8582  6.9363 
-## 
-## Coefficients:
-## (Intercept)          hp        disp 
-## 30.73590425 -0.02484008 -0.03034628 
-## 
-## R-Squared: 0.7482
-## Root Mean Squared Error: 2.976</code></pre>
-</div>
-<div id="logistic-regression" class="section level3">
-<h3>Logistic regression</h3>
-<p>The command ml_logistic_regression can be used to train a multinomial
-model, where the dependent variable has more than two categories.
-However, it does not report standard deviations of parameter
-estimates.</p>
-<pre class="r"><code>lr_model = ml_logistic_regression(cars, am ~ hp + disp)
-summary(lr_model)</code></pre>
-<pre><code>## Coefficients:
-## (Intercept)          hp        disp 
-##  1.40342344  0.12170174 -0.09517974</code></pre>
-<p>The command ml_generalized_linear_regression can also be used to
-train a logistic model with binary dependent variable, but
-<strong>dependent variables with more than two categories are not
-supported!</strong>. However, it does report standard deviations of
-parameter estimates.</p>
-<pre class="r"><code>lr_model = ml_generalized_linear_regression(cars, am ~ hp + disp, family = &#39;binomial&#39;)
-summary(lr_model)</code></pre>
-<pre><code>## Deviance Residuals:
-##       Min        1Q    Median        3Q       Max 
-## -1.966529 -0.309001 -0.001701  0.393378  1.368229 
-## 
-## Coefficients:
-## (Intercept)          hp        disp 
-##  1.40342203  0.12170173 -0.09517972 
-## 
-## (Dispersion parameter for binomial family taken to be 1)
-## 
-##    Null  deviance: 43.2297 on 31 degrees of freedom
-## Residual deviance: 16.7129 on 29 degrees of freedom
-## AIC: 22.713</code></pre>
-</div>
-<div id="multilayer-perceptron" class="section level3">
-<h3>Multilayer perceptron</h3>
-<pre class="r"><code>mlp_model = ml_multilayer_perceptron_classifier(
-  cars,
-  am ~ hp + disp,
-  layers = c(2, 8, 8, 2)
-)
-predictions = ml_predict(mlp_model, cars)
-
-select(predictions, prediction, probability_0, probability_1) %&gt;%
-  head() %&gt;%
-  kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="right">prediction</th>
-<th align="right">probability_0</th>
-<th align="right">probability_1</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">0</td>
-<td align="right">0.6436765</td>
-<td align="right">0.3563235</td>
-</tr>
-<tr class="even">
-<td align="right">0</td>
-<td align="right">0.6436765</td>
-<td align="right">0.3563235</td>
-</tr>
-<tr class="odd">
-<td align="right">1</td>
-<td align="right">0.0000000</td>
-<td align="right">1.0000000</td>
-</tr>
-<tr class="even">
-<td align="right">0</td>
-<td align="right">1.0000000</td>
-<td align="right">0.0000000</td>
-</tr>
-<tr class="odd">
-<td align="right">0</td>
-<td align="right">1.0000000</td>
-<td align="right">0.0000000</td>
-</tr>
-<tr class="even">
-<td align="right">0</td>
-<td align="right">1.0000000</td>
-<td align="right">0.0000000</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="gradient-boosted-trees" class="section level3">
-<h3>Gradient boosted trees</h3>
-<p>Classification trees:</p>
-<pre class="r"><code>gbt_model = ml_gradient_boosted_trees(cars, am ~ hp + disp, type = &#39;classification&#39;)
-predictions = ml_predict(gbt_model, cars)
-
-select(predictions, prediction, probability_0, probability_1) %&gt;%
-  head() %&gt;%
-  kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="right">prediction</th>
-<th align="right">probability_0</th>
-<th align="right">probability_1</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">1</td>
-<td align="right">0.0436465</td>
-<td align="right">0.9563535</td>
-</tr>
-<tr class="even">
-<td align="right">1</td>
-<td align="right">0.0436465</td>
-<td align="right">0.9563535</td>
-</tr>
-<tr class="odd">
-<td align="right">1</td>
-<td align="right">0.0436465</td>
-<td align="right">0.9563535</td>
-</tr>
-<tr class="even">
-<td align="right">0</td>
-<td align="right">0.9563535</td>
-<td align="right">0.0436465</td>
-</tr>
-<tr class="odd">
-<td align="right">0</td>
-<td align="right">0.9563535</td>
-<td align="right">0.0436465</td>
-</tr>
-<tr class="even">
-<td align="right">0</td>
-<td align="right">0.9563535</td>
-<td align="right">0.0436465</td>
-</tr>
-</tbody>
-</table>
-<p>Regression trees:</p>
-<pre class="r"><code>gbt_model = ml_gradient_boosted_trees(cars, mpg ~ hp + disp, type = &#39;regression&#39;)
-predictions = ml_predict(gbt_model, cars)
-
-select(predictions, prediction) %&gt;%
-  head() %&gt;%
-  kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="right">prediction</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">21.00351</td>
-</tr>
-<tr class="even">
-<td align="right">21.00351</td>
-</tr>
-<tr class="odd">
-<td align="right">22.80000</td>
-</tr>
-<tr class="even">
-<td align="right">21.39966</td>
-</tr>
-<tr class="odd">
-<td align="right">18.69963</td>
-</tr>
-<tr class="even">
-<td align="right">18.10059</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="other-models" class="section level3">
-<h3>Other models</h3>
-<p>Apache Spark supports many other models - I have just chosen a few to
-look at more closely. I encourage you to explore others! See
-documentation here: <a href="https://spark.apache.org/docs/latest/ml-classification-regression.html">https://spark.apache.org/docs/latest/ml-classification-regression.html</a></p>
-</div>
-</div>
-<div id="disconnecting" class="section level2">
-<h2>Disconnecting</h2>
-<p>The following code chunk disconnects from the cluster. You should
-always do this after your job has been run.</p>
-<pre class="r"><code>spark_disconnect(sc)</code></pre>
+<div id="using-your-own-machine" class="section level3">
+<h3>Using your own machine</h3>
+<p>Apache Spark requires Java. Spark version 2.x is compatible with Java
+8, whereas Spark version 3.x is compatible with Java 11. Therefore in
+order to determine which version of Spark to install, you should first
+see which if any version of Java is installed on your computer.</p>
+<p>To do this, use the following command in Rstudio:</p>
+<pre class="r"><code>system(&quot;java -version&quot;)</code></pre>
+<p>If the output is something like: java version “1.8.0_351”, then you
+already have Java 8 installed. Note that the middle number between the
+full stops is the Java version on your computer.</p>
+<p>If you have some other version of Java installed, then you should
+install Java 8 following the link above.</p>
+<p>If you don’t have Java installed, then follow this link to install
+Java 8: <a href="https://www.java.com/en/download/">https://www.java.com/en/download/</a>.</p>
+<p>If you have Java 8 installed, then run the following command in the
+Rstudio console to install Spark 2.4.3:</p>
+<pre class="r"><code>spark_install(&#39;2.4.3&#39;)</code></pre>
+<p>If you have Java 11 installed, run the following command in the
+Rstudio console to install Spark 3.2.2</p>
+<pre class="r"><code>spark_install(&quot;3.2.2&quot;,&quot;3.2&quot;)</code></pre>
+<p>Installing spark only needs to be done once.</p>
 </div>
 
 

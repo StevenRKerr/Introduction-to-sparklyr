@@ -1,49 +1,36 @@
 ---
-title: "Introduction to sparklyr"
+title: 'Introduction to sparklyr'
 output: html_document
 ---
 
 We will largely follow Chapters 2 and 3 of Mastering Spark with R, [https://therinspark.com/](https://therinspark.com/).
 
-## Installation
+First, load up required packages.
 
-If you are using your own computer rather than Noteable, you may need to install Java 8 before you install Spark. Do it here:
-[https://www.java.com/en/download/](https://www.java.com/en/download/).
-
-First we will install sparklyr and load up required packages.
-
-```{r echo = TRUE, warning=FALSE, message=FALSE}
-if (!require('sparklyr')){
-  install.packages('sparklyr')
-}
-
+```{r echo = TRUE, warning = FALSE, message = FALSE}
 library(sparklyr)
 library(dplyr)
 library(ggplot2)
+library(knitr)
 ```
 
-Next we'll install spark by typing the following command into the console:
-
-```{r eval=FALSE}
-spark_install()
-```
-
-This only needs to be done once on the first run. If you are using Noteable, you will notice a new folder called spark has been created in your working directory.
 
 ## Connecting
 
-You will be using the machine you are working on as a local cluster. This is just so you can familiarise yourself with using sparklyr. In practice, we would connect to an external cluster.
+Spark is used to run data-processing algorithms across a cluster. Normally, you would connect to an external cluster. However, 
+you will connect to your local machine as if it were a cluster. This will allow you to familiarise yourself with spark and sparklyr.
 
-mtcars is a dataset that is built into R that we will use as an example.
+The code chunk below creates a spark connection to your machine as if it were a cluster, and then loads the mtcars dataset
+into a Spark dataframe. mtcars is a dataset that is built into R that we will use as an example.
 
-```{r}
-sc = spark_connect(master = "local")
+```{r warning = FALSE}
+sc = spark_connect(master = 'local')
 cars = copy_to(sc, mtcars, overwrite = TRUE)
 ```
 
 ## Data input/output
 
-### Write to a csv file:
+### Write to a csv file
 
 This will create a folder in your working directory called cars.csv. It contains a csv with the cars data in it.
 
@@ -53,32 +40,37 @@ spark_write_csv(cars, 'cars.csv')
 
 Note that running this more than once will result in an error because spark_write_csv will not overwrite a folder you have already created. You may need to delete the folder cars.csv in your working directory in order to re-run.
 
-### Read from a csv file:
+### Read from a csv file
 
 ```{r}
-spark_read_csv(sc, 'cars.csv')
+spark_read_csv(sc, 'cars.csv') %>%
+  head() %>%
+  kable()
 ```
 
 ## Data wrangling
 
-Familiar commands from dplyr work as you would expect, but now they instead connect to Spark and are run in parallel across the cluster.
+Familiar commands from dplyr work as you would expect, but now they instead connect to Spark and would be run in parallel across the cluster.
 
 ### Create a new column.
 
 ```{r}
-cars = mutate(cars, transmission = ifelse(am == 0, "automatic", "manual"))
+cars = mutate(cars, transmission = ifelse(am == 0, 'automatic', 'manual'))
 ```
 
 ### Select columns.
 
 ```{r}
-select(cars, am, transmission) 
+select(cars, am, transmission) %>%
+  head() %>%
+  kable()
 ```
 
 ### Calculate the mean of each column.
 
 ```{r}
-summarise_all(cars, mean, na.rm = TRUE)
+summarise_all(cars, mean, na.rm = TRUE) %>%
+  kable()
 ```
 
 
@@ -87,13 +79,17 @@ Creating a plot isn’t usually highly computationally demanding. Therefore, spa
 
 
 ```{r}
+# Data manipulations are done first using spark
 car_group = cars %>%
-	group_by(cyl) %>%
-	summarise(mpg = sum(mpg, na.rm = TRUE)) %>%
-	collect()
+  group_by(cyl) %>%
+  summarise(mpg = sum(mpg, na.rm = TRUE)) %>%
+  # collect brings the Spark dataframe back to a regular R dataframe
+  collect()
 
-ggplot(aes(as.factor(cyl), mpg), data = car_group) + 
-  geom_col(fill = "#999999") + 
+# Now use ggplot on the R dataframe car_group
+ggplot(aes(as.factor(cyl), mpg), data = car_group) +
+  geom_col(fill = 'SteelBlue') +
+  xlab('Cylinders') +
   coord_flip()
 ```
 
@@ -111,8 +107,22 @@ summary(ols_model)
 
 ### Logistic regression
 
+The command ml_logistic_regression can be used to train a multinomial model, where
+the dependent variable has more than two categories. However, it does not report 
+standard deviations of parameter estimates.
+
 ```{r}
 lr_model = ml_logistic_regression(cars, am ~ hp + disp)
+summary(lr_model)
+```
+
+The command ml_generalized_linear_regression can also be used to train a
+logistic model with binary dependent variable, but **dependent variables with more than
+two categories are not supported!**. However, it does report standard deviations 
+of parameter estimates.
+
+```{r}
+lr_model = ml_generalized_linear_regression(cars, am ~ hp + disp, family = 'binomial')
 summary(lr_model)
 ```
 
@@ -120,12 +130,15 @@ summary(lr_model)
 
 ```{r}
 mlp_model = ml_multilayer_perceptron_classifier(
-	cars,
-	am ~ hp + disp, 
-	layers = c(2, 8, 8, 2))
+  cars,
+  am ~ hp + disp,
+  layers = c(2, 8, 8, 2)
+)
 predictions = ml_predict(mlp_model, cars)
 
-select(predictions, prediction, probability_0, probability_1)
+select(predictions, prediction, probability_0, probability_1) %>%
+  head() %>%
+  kable()
 ```
 
 ### Gradient boosted trees
@@ -134,23 +147,23 @@ Classification trees:
 
 ```{r}
 gbt_model = ml_gradient_boosted_trees(cars, am ~ hp + disp, type = 'classification')
-
 predictions = ml_predict(gbt_model, cars)
 
-select(predictions, prediction, probability_0, probability_1)
+select(predictions, prediction, probability_0, probability_1) %>%
+  head() %>%
+  kable()
 ```
 
 Regression trees:
 
 ```{r}
 gbt_model = ml_gradient_boosted_trees(cars, mpg ~ hp + disp, type = 'regression')
-
 predictions = ml_predict(gbt_model, cars)
 
-predictions
+select(predictions, prediction) %>%
+  head() %>%
+  kable()
 ```
-
-
 
 
 ### Other models
@@ -159,7 +172,8 @@ Apache Spark supports many other models - I have just chosen a few to look at mo
 
 ## Disconnecting
 
+The following code chunk disconnects from the cluster. You should always do this after your job has been run.
+
 ```{r}
 spark_disconnect(sc)
 ```
-

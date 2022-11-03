@@ -1,0 +1,68 @@
+---
+title: "Installing sparklyr and Spark"
+output: html_document
+---
+
+First we will install sparklyr. This only needs to be done once.
+
+```{r eval = FALSE}
+install.packages("sparklyr")
+```
+
+Next, load it up.
+
+```{r echo = TRUE, warning = FALSE, message = FALSE}
+library(sparklyr)
+```
+
+What you need to do next depends on whether you are using your own machine or Noteable. Please follow the directions in the appropriate section below.
+
+### Using Noteable
+
+Run the following command in the Rstudio console to install Spark 3.2.2:
+
+```{r eval = FALSE}
+spark_install("3.2.2","3.2")
+```
+
+Installing spark only needs to be done once. You will notice a new folder called spark has been created in your working directory.
+
+
+### Using your own  machine
+
+Apache Spark requires Java. Spark version 2.x is compatible with Java 8, whereas
+Spark version 3.x is compatible with Java 11. Therefore in order to determine which 
+version of Spark to install, you should first see which if any version of 
+Java is installed on your computer. 
+
+To do this, use the following command in Rstudio:
+
+```{r echo = TRUE, results = 'hide'}
+system("java -version")
+```
+
+If the output is something like: java version "1.8.0_351", then you already 
+have Java 8 installed. Note that the middle number between the full stops is the Java version on your computer. 
+
+If you have some other version of Java installed, then you should install Java 8 
+following the link above.
+
+If you don't have Java installed, then follow this link to install Java 8: [https://www.java.com/en/download/](https://www.java.com/en/download/).
+
+If you have Java 8 installed, then run the following command in the Rstudio console
+to install Spark 2.4.3:
+
+```{r eval = FALSE}
+spark_install('2.4.3')
+```
+
+If you have Java 11 installed, run the following command in the Rstudio console 
+to install Spark 3.2.2
+
+```{r eval = FALSE}
+spark_install("3.2.2","3.2")
+```
+
+Installing spark only needs to be done once.
+
+
